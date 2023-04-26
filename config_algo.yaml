@@ -1,0 +1,7 @@
+model_name: mp_face
+use_cpu: no
+prefix: ./video/
+input_video: blinking.mp4
+output_video: algo_blinking.mp4
+graphics: algo_blinking.png
+fps: 60
