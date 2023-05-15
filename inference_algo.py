@@ -14,6 +14,11 @@ from spiga.inference.config import ModelConfig
 from spiga.inference.framework import SPIGAFramework
 from spiga.demo.visualize.plotter import Plotter
 
+TOTAL_TIME = 0.0
+RETINAFACE_TIME = 0.0
+SPIGA_TIME = 0.0
+ALGO_TIME = 0.0
+
 
 def extract_bboxes(faces, threshold):
     bboxes = []
@@ -56,17 +61,35 @@ def process_image(idx,
                   model='mp_face',
                   plot=False,
                   print_ear=True):
+    global TOTAL_TIME
+    global RETINAFACE_TIME
+    global SPIGA_TIME
+    global ALGO_TIME
+
     normal_features = True
     if model[0] == 'spiga':
         # spiga
         processor = model[1]
+
+        start = time.time()
         faces = RetinaFace.detect_faces(image)
+        end = time.time()
+
+        RETINAFACE_TIME += end - start
+        TOTAL_TIME += end - start
 
         try:
             bbox = extract_bboxes(faces, 0.99)[0]
+
+            start = time.time()
             features = processor.inference(image, [bbox])
+            end = time.time()
+
             left_landmarks = np.array(features['landmarks'][0])[60:68]
             right_landmarks = np.array(features['landmarks'][0])[68:76]
+
+            SPIGA_TIME += end - start
+            TOTAL_TIME += end - start
         except Exception as _:
             normal_features = False
             features = []
@@ -125,12 +148,19 @@ def process_image(idx,
         (h, w) = canvas.shape[:2]
         canvas = cv2.resize(canvas, (512, int(h*512/w)))
 
+    start = time.time()
+
     if normal_features:
         lear = eye_aspect_ratio(left_landmarks)
         rear = eye_aspect_ratio(right_landmarks)
     else:
         lear = 0.5
         rear = 0.5
+
+    end = time.time()
+
+    ALGO_TIME += end - start
+    TOTAL_TIME += end - start
 
     if print_ear:
         str = f'frame: {idx + 1} left EAR: {lear:.5f} right EAR: {rear:.5f}'
@@ -298,6 +328,11 @@ def process_video(video_path,
                   print_ear=True,
                   print_aes=('left', 'right'),
                   use_cpu=False):
+    global TOTAL_TIME
+    global RETINAFACE_TIME
+    global SPIGA_TIME
+    global ALGO_TIME
+
     # model
     if model_name == 'mp_face':
         # mediapipe face mesh
@@ -374,6 +409,8 @@ def process_video(video_path,
             lears.append(lear)
             rears.append(rear)
 
+            start = time.time()
+
             # aes calculating stage
             if nums == aes_cnt:
                 lprep = calculate_aes(lears, max_ears_cnt, show=print_aes[0])
@@ -440,6 +477,11 @@ def process_video(video_path,
                                             (ldur, rdur),
                                             (laecd, raecd))
 
+            end = time.time()
+
+            ALGO_TIME += end - start
+            TOTAL_TIME += end - start
+
             new_frame_time = time.time()
             fps = 1.0 / (new_frame_time - prev_frame_time)
             mean_fps += fps
@@ -454,6 +496,8 @@ def process_video(video_path,
             break
 
     print(f'fps {(mean_fps / nums):.2f}')
+
+    start = time.time()
 
     # video ending processing
     lt, lst, lmax, lmin, lspd, lf, lcnt = video_end_fatigue(nums,
@@ -473,6 +517,11 @@ def process_video(video_path,
                                                             rspd,
                                                             rf,
                                                             rcnt)
+
+    end = time.time()
+
+    ALGO_TIME += end - start
+    TOTAL_TIME += end - start
 
     # concatenate left and right metrics
     speeds = (lspd, rspd)
@@ -745,7 +794,7 @@ def main():
                             plotter,
                             model_name=model_name,
                             max_ears_cnt=4,
-                            aes_cnt=300,
+                            aes_cnt=config['fps']*5,
                             init_fps=config['fps'],
                             cnt=None,
                             plot_landmarks=True,
@@ -762,12 +811,36 @@ def main():
     print(f'right duration {durations[1][-1]:.3f}')
     print(f'right aecd {aecds[1][-1]:.3f}')
 
+    if model_name == 'spiga':
+        ptime = RETINAFACE_TIME
+        pperc = ptime / TOTAL_TIME * 100
+        pstr = f'retinaface time: {ptime:.3f}, retinaface percent: {pperc:.2f}'
+        print(pstr)
+
+        ptime = SPIGA_TIME
+        pperc = ptime / TOTAL_TIME * 100
+        pstr = f'spiga time: {ptime:.3f}, spiga percent: {pperc:.2f}'
+        print(pstr)
+
+        ptime = ALGO_TIME
+        pperc = ptime / TOTAL_TIME * 100
+        pstr = f'algo time: {ptime:.3f}, algo percent: {pperc:.2f}'
+        print(pstr)
+
     # glue it into a video
     if len(canvases) > 0:
-        procces_frames_into_video(times, canvases, name=output_path)
+        procces_frames_into_video(times,
+                                  canvases,
+                                  name=output_path,
+                                  init_fps=config['fps'])
 
     # plot graphics
-    plot_graphics(graphics_path, frequencies, durations, ears, aecds)
+    plot_graphics(graphics_path,
+                  frequencies,
+                  durations,
+                  ears,
+                  aecds,
+                  init_fps=config['fps'])
 
 
 if __name__ == '__main__':
