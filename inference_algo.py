@@ -8,7 +8,8 @@ import time
 import yaml
 from argparse import ArgumentParser
 
-from retinaface import RetinaFace
+from retinaface_detect import detect as retinaface_detect_faces
+from retinaface_detect import create_net as retinaface_model
 
 from spiga.inference.config import ModelConfig
 from spiga.inference.framework import SPIGAFramework
@@ -22,13 +23,11 @@ ALGO_TIME = 0.0
 
 def extract_bboxes(faces, threshold):
     bboxes = []
-    for key in faces.keys():
-        face = faces[key]
-
-        if face['score'] < threshold:
+    for face in faces:
+        if face[4] < threshold:
             continue
 
-        bbox = face['facial_area']
+        bbox = face[:4]
         new_bbox = xyxy_to_xywh(bbox)
 
         bboxes.append(new_bbox)
@@ -70,9 +69,10 @@ def process_image(idx,
     if model[0] == 'spiga':
         # spiga
         processor = model[1]
+        retinaface_net, retinaface_cfg = model[2]
 
         start = time.time()
-        faces = RetinaFace.detect_faces(image)
+        faces = retinaface_detect_faces(image, retinaface_net, retinaface_cfg)
         end = time.time()
 
         RETINAFACE_TIME += end - start
@@ -319,6 +319,7 @@ def display_values(image,
 def process_video(video_path,
                   plotter,
                   model_name='mp_face',
+                  retinaface_backbone='resnet50',
                   dataset='wflw',
                   init_fps=60,
                   max_ears_cnt=3,
@@ -347,7 +348,16 @@ def process_video(video_path,
     elif model_name == 'spiga':
         # spiga
         processor = SPIGAFramework(ModelConfig(dataset), use_cpu=use_cpu)
-        model = (model_name, processor)
+
+        retinaface_weights = './retinaface_pytorch/weights/'
+        if retinaface_backbone == 'resnet50':
+            retinaface_weights += 'Resnet50_Final.pth'
+        elif retinaface_backbone == 'mobile0.25':
+            retinaface_weights += 'mobilenet0.25_Final.pth'
+        
+        retinaface_net = retinaface_model(network=retinaface_backbone, 
+                                          weights=retinaface_weights)
+        model = (model_name, processor, retinaface_net)
 
     # ear
     lears, rears = [], []
@@ -487,7 +497,6 @@ def process_video(video_path,
             mean_fps += fps
 
             nums += 1
-
             print(f'processed {nums} frames')
 
             if canvas is not None:
@@ -782,6 +791,7 @@ def main():
 
     prefix = config['prefix']
     model_name = config['model_name']
+    backbone = config['retinaface_backbone']
     input_path = prefix + config['input_video']
     output_path = prefix + f'/{model_name}_{config["output_video"]}'
     graphics_path = prefix + f'/{model_name}_{config["graphics"]}'
@@ -793,11 +803,12 @@ def main():
     metrics = process_video(input_path,
                             plotter,
                             model_name=model_name,
+                            retinaface_backbone=backbone,
                             max_ears_cnt=4,
                             aes_cnt=config['fps']*5,
                             init_fps=config['fps'],
                             cnt=None,
-                            plot_landmarks=True,
+                            plot_landmarks=False,
                             print_ear=False,
                             print_aes=(None, None),
                             use_cpu=use_cpu)

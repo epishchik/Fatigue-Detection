@@ -3,6 +3,6 @@ retinaface_backbone: resnet50
 use_cpu: no
 prefix: ./video/
 input_video: blinking.mp4
-output_video: algo_blinking.mp4
-graphics: algo_blinking.png
+output_video: cnn_blinking.mp4
+graphics: cnn_blinking.png
 fps: 60

@@ -1,3 +1,2 @@
-retina-face==0.0.13
 mediapipe==0.9.2.1
 opencv-python==4.7.0.72
