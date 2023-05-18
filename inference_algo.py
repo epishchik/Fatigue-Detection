@@ -354,8 +354,8 @@ def process_video(video_path,
             retinaface_weights += 'Resnet50_Final.pth'
         elif retinaface_backbone == 'mobile0.25':
             retinaface_weights += 'mobilenet0.25_Final.pth'
-        
-        retinaface_net = retinaface_model(network=retinaface_backbone, 
+
+        retinaface_net = retinaface_model(network=retinaface_backbone,
                                           weights=retinaface_weights)
         model = (model_name, processor, retinaface_net)
 
@@ -808,7 +808,7 @@ def main():
                             aes_cnt=config['fps']*5,
                             init_fps=config['fps'],
                             cnt=None,
-                            plot_landmarks=False,
+                            plot_landmarks=True,
                             print_ear=False,
                             print_aes=(None, None),
                             use_cpu=use_cpu)
