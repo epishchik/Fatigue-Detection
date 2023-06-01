@@ -1,6 +1,5 @@
 .vscode/
 .idea/
 **__pycache__**
-SPIGA/
 *.pth
 *.pt
