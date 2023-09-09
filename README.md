@@ -14,7 +14,7 @@ docker pull ghcr.io/pe4eniks/fatigue-detection:latest
 ## Clone source code
 ```bash
 git clone https://github.com/Pe4enIks/Fatigue-Detection.git
-PATH_TO_PROJ=/Fatigue-Detection
+PATH_TO_PROJ=./Fatigue-Detection
 ```
 
 ## Run container from Image
