@@ -1,5 +1,7 @@
-.vscode/
-.idea/
+.vscode
+.DS_Store
+.idea
 **__pycache__**
 *.pth
 *.pt
+venv

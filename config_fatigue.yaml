@@ -1,0 +1,8 @@
+model_name: mp_face
+retinaface_backbone: mobile0.25
+use_cpu: yes
+prefix: ./video/
+input_video: blinking.mp4
+fps: 60
+frequency_fatigue_threshold: 0.501
+aecd_fatigue_threshold: 1.059
