@@ -1,13 +1,18 @@
 # Fatigue-Detection
 Fatigue detection using blinking frequency and duration.
 
-## Pull Image
+## Get Image
 ```bash
 docker pull pe4eniks/fatigue-detection
 ```
 OR
 ```bash
 docker pull ghcr.io/pe4eniks/fatigue-detection:latest
+```
+OR
+```bash
+cd dtools
+bash docker_build.sh
 ```
 
 
@@ -18,6 +23,10 @@ PATH_TO_PROJ=./Fatigue-Detection
 ```
 
 ## Run container from Image
+- NAME_IMAGE - can be the name of the locally created image, the id of the pulled image or the name of the pulled image.
+- NAME_CONTAINER - name of the container that will be run from the image.
+- PATH_TO_PRJ - path to the cloned repository.
+
 ```bash
 NAME_IMAGE=pe4eniks/fatigue-detection:latest
 NAME_CONTAINER=blinking
@@ -31,10 +40,11 @@ docker run \
     --name $NAME_CONTAINER \
     $NAME_IMAGE
 ```
-
-- NAME_IMAGE - can be the name of the locally created image, the id of the pulled image or the name of the pulled image.
-- NAME_CONTAINER - name of the container that will be run from the image.
-- PATH_TO_PRJ - path to the cloned repository.
+OR
+```
+cd dtools
+bash docker_run.sh
+```
 
 ## Fatigue inference
 Currently supported for algorithm variant only.
