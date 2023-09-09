@@ -21,18 +21,21 @@ def check_keys(model, pretrained_state_dict):
 
 
 def remove_prefix(state_dict, prefix):
-    f = lambda x: x.split(prefix, 1)[-1] if x.startswith(prefix) else x
+    def f(x): return x.split(prefix, 1)[-1] if x.startswith(prefix) else x
     return {f(key): value for key, value in state_dict.items()}
 
 
 def load_model(model, pretrained_path, load_to_cpu):
     if load_to_cpu:
-        pretrained_dict = torch.load(pretrained_path, map_location=lambda storage, loc: storage)
+        pretrained_dict = torch.load(
+            pretrained_path, map_location=lambda storage, loc: storage)
     else:
         device = torch.cuda.current_device()
-        pretrained_dict = torch.load(pretrained_path, map_location=lambda storage, loc: storage.cuda(device))
+        pretrained_dict = torch.load(
+            pretrained_path, map_location=lambda storage, loc: storage.cuda(device))
     if "state_dict" in pretrained_dict.keys():
-        pretrained_dict = remove_prefix(pretrained_dict['state_dict'], 'module.')
+        pretrained_dict = remove_prefix(
+            pretrained_dict['state_dict'], 'module.')
     else:
         pretrained_dict = remove_prefix(pretrained_dict, 'module.')
     check_keys(model, pretrained_dict)
@@ -40,7 +43,7 @@ def load_model(model, pretrained_path, load_to_cpu):
     return model
 
 
-def create_net(network='mobile0.25', 
+def create_net(network='mobile0.25',
                weights='./retinaface_pytorch/weights/mobilenet0.25_Final.pth'):
     torch.set_grad_enabled(False)
     cfg = None
@@ -48,7 +51,7 @@ def create_net(network='mobile0.25',
         cfg = cfg_mnet
     elif network == "resnet50":
         cfg = cfg_re50
-    
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     net = RetinaFace(cfg=cfg, phase='test')
@@ -73,7 +76,8 @@ def detect(img,
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     im_height, im_width, _ = img.shape
-    scale = torch.Tensor([img.shape[1], img.shape[0], img.shape[1], img.shape[0]])
+    scale = torch.Tensor(
+        [img.shape[1], img.shape[0], img.shape[1], img.shape[0]])
     img -= (104, 117, 123)
     img = img.transpose(2, 0, 1)
     img = torch.from_numpy(img).unsqueeze(0)
@@ -92,8 +96,8 @@ def detect(img,
     scores = conf.squeeze(0).data.cpu().numpy()[:, 1]
     landms = decode_landm(landms.data.squeeze(0), prior_data, cfg['variance'])
     scale1 = torch.Tensor([img.shape[3], img.shape[2], img.shape[3], img.shape[2],
-                            img.shape[3], img.shape[2], img.shape[3], img.shape[2],
-                            img.shape[3], img.shape[2]])
+                           img.shape[3], img.shape[2], img.shape[3], img.shape[2],
+                           img.shape[3], img.shape[2]])
     scale1 = scale1.to(device)
     landms = landms * scale1 / resize
     landms = landms.cpu().numpy()
@@ -111,7 +115,8 @@ def detect(img,
     scores = scores[order]
 
     # do NMS
-    dets = np.hstack((boxes, scores[:, np.newaxis])).astype(np.float32, copy=False)
+    dets = np.hstack((boxes, scores[:, np.newaxis])).astype(
+        np.float32, copy=False)
     keep = py_cpu_nms(dets, nms_threshold)
     dets = dets[keep, :]
     landms = landms[keep]
