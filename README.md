@@ -1,6 +1,11 @@
 # Fatigue-Detection
 Fatigue detection using blinking frequency and duration.
 
+## Clone source code
+```bash
+git clone https://github.com/Pe4enIks/Fatigue-Detection.git
+```
+
 ## Get Image
 ```bash
 docker pull pe4eniks/fatigue-detection
@@ -13,13 +18,6 @@ OR
 ```bash
 cd dtools
 bash docker_build.sh
-```
-
-
-## Clone source code
-```bash
-git clone https://github.com/Pe4enIks/Fatigue-Detection.git
-PATH_TO_PROJ=./Fatigue-Detection
 ```
 
 ## Run container from Image
