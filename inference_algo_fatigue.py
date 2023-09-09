@@ -9,7 +9,7 @@ def parse():
     parser.add_argument('-c',
                         '--config',
                         type=str,
-                        default='./config_fatigue.yaml')
+                        default='./config_algo_fatigue.yaml')
     args = parser.parse_args()
     return args
 
