@@ -1,5 +1,5 @@
 NAME_IMAGE=blinking
-NAME_CONTEINER=blinking
+NAME_CONTAINER=blinking
 PATH_TO_PRJ=/proj
 WORKSPACE=/workspace/proj
 GPUS='0'
@@ -9,5 +9,5 @@ NV_GPU=$GPUS nvidia-docker run \
     -it \
     --shm-size 32G \
     -v $PATH_TO_PRJ:$WORKSPACE \
-    --name $NAME_CONTEINER \
+    --name $NAME_CONTAINER \
     $NAME_IMAGE
