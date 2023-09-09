@@ -35,3 +35,25 @@ docker run \
 - NAME_IMAGE - can be the name of the locally created image, the id of the pulled image or the name of the pulled image.
 - NAME_CONTAINER - name of the container that will be run from the image.
 - PATH_TO_PRJ - path to the cloned repository.
+
+## Fatigue inference
+Currently supported for algorithm variant only.
+
+### Step 1
+Configure config_algo_fatigue.yaml.
+```yaml
+model_name: mp_face - keypoint model [mp_face | spiga].
+retinaface_backbone: mobile0.25 - backbone model [mobile0.25 | resnet50].
+use_cpu: yes - cpu usage option [no | yes].
+prefix: ./video/ - path to folder with video.
+input_video: blinking.mp4 - video name with extension.
+fps: 60 - video fps.
+frequency_fatigue_threshold: 0.501 - fatigue threshold for frequency (if val <= threshold -> fatigue detected).
+aecd_fatigue_threshold: 1.059 - fatigue threshold for aecd (if val >= threshold -> fatigue detected).
+```
+
+## Step 2
+Run inference script.
+```bash
+python inference_algo_fatigue.py
+```
