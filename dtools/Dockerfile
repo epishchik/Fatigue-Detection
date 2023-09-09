@@ -17,6 +17,4 @@ ADD ./SPIGA /workspace/SPIGA
 RUN pip install -e /workspace/SPIGA
 
 RUN apt-get install ffmpeg libsm6 libxext6 -y
-RUN apt-get install git
-
 ADD ./retinaface_pytorch /workspace/proj/retinaface_pytorch
