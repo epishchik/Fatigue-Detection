@@ -59,7 +59,7 @@ python inference_algo_fatigue.py
 ```
 
 ## Method inference
-### Alogorithm
+### Algorithm
 #### Step 1
 Configure config_algo.yaml.
 ```yaml
