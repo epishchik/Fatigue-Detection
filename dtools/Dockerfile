@@ -17,7 +17,6 @@ ADD ./SPIGA /workspace/SPIGA
 RUN pip install -e /workspace/SPIGA
 
 RUN apt-get install ffmpeg libsm6 libxext6 -y
-RUN pip install torch==1.13.1+cu116 --extra-index-url https://download.pytorch.org/whl/cu116
 RUN apt-get install git
 
 ADD ./retinaface_pytorch /workspace/proj/retinaface_pytorch
